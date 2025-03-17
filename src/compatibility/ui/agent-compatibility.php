@@ -41,6 +41,9 @@ class CompatibilityAgentPlugin extends AgentPlugin
     if ($request == null) {
       $request = $_POST;
     }
+    elseif (!is_array($request)) {
+      $request = [];
+    }
     $compatibilityDependencies = array_merge($compatibilityDependencies,
         $this->getCompatibilityDependencies($request));
 
