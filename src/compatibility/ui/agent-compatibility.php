@@ -36,13 +36,17 @@ class CompatibilityAgentPlugin extends AgentPlugin
       return 0;
     }
 
-    $compatibilityDependencies = array("agent_adj2nest");
-
-    if ($request == null) {
-      $request = $_POST;
+    if ($request instanceof Request) {
+      $request = $request->request->all(); // Symfony's recommended way
+    } elseif (!is_array($request)) {
+      $request = [];
     }
-    $compatibilityDependencies = array_merge($compatibilityDependencies,
-        $this->getCompatibilityDependencies($request));
+
+    $compatibilityDependencies = array_unique(array_merge(
+       ["agent_adj2nest"], 
+       $this->getCompatibilityDependencies($request)
+    ));
+
 
     $jobQueueId = \IsAlreadyScheduled($jobId, $this->AgentName, $uploadId);
     if ($jobQueueId != 0) {
@@ -50,7 +54,7 @@ class CompatibilityAgentPlugin extends AgentPlugin
     }
 
     return $this->doAgentAdd($jobId, $uploadId, $errorMsg,
-        array_unique($compatibilityDependencies), $arguments, null, $request);
+        $compatibilityDependencies, $arguments, null, $request);
   }
 
   function AgentHasResults($uploadId = 0)
